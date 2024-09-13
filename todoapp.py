@@ -2,45 +2,47 @@ import streamlit as st
 import pandas as pd
 import sqlite3
 
-# Connect to SQLite Database
-conn = sqlite3.connect('todos.db')
-c = conn.cursor()
-
-# Create table if it doesn't exist
-c.execute('''
-    CREATE TABLE IF NOT EXISTS todos (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        task TEXT,
-        category TEXT,
-        priority TEXT,
-        status TEXT
-    )
-''')
-conn.commit()
+# Function to create a connection to the SQLite database
+def get_connection():
+    conn = sqlite3.connect('todos.db')
+    return conn
 
 # Function to add a new task to SQLite
 def add_todo_to_db(task, category, priority):
+    conn = get_connection()
+    c = conn.cursor()
     c.execute('''
         INSERT INTO todos (task, category, priority, status)
         VALUES (?, ?, ?, 'Pending')
     ''', (task, category, priority))
     conn.commit()
+    conn.close()
 
 # Function to retrieve all tasks from SQLite
 def get_todos_from_db():
+    conn = get_connection()
+    c = conn.cursor()
     c.execute('SELECT * FROM todos')
-    return c.fetchall()
+    todos = c.fetchall()
+    conn.close()
+    return todos
 
 # Function to remove a task from SQLite
 def remove_todo_from_db(task_id):
+    conn = get_connection()
+    c = conn.cursor()
     c.execute('DELETE FROM todos WHERE id = ?', (task_id,))
     conn.commit()
+    conn.close()
 
 # Function to toggle task status in SQLite
 def toggle_task_status(task_id, current_status):
     new_status = 'Completed' if current_status == 'Pending' else 'Pending'
+    conn = get_connection()
+    c = conn.cursor()
     c.execute('UPDATE todos SET status = ? WHERE id = ?', (new_status, task_id))
     conn.commit()
+    conn.close()
 
 # App title
 st.title("📝 To-Do List Using Streamlit and SQLite")
@@ -87,21 +89,4 @@ for index, todo in todos_df.iterrows():
         st.write(f"🏷️ {todo['Category']}")
     
     with col3:
-        priority_color = {'High': '🔴', 'Medium': '🟡', 'Low': '🟢'}
-        st.write(f"{priority_color[todo['Priority']]} {todo['Priority']}")
-    
-    with col4:
-        st.button(f"{'Undo' if todo['Status'] == 'Completed' else 'Complete'}", 
-                  key=f"toggle_{index}", 
-                  on_click=toggle_task_status, 
-                  args=(todo['ID'], todo['Status']))
-    
-    with col5:
-        st.button("Remove", key=f"remove_{index}", on_click=remove_todo_from_db, args=(todo['ID'],))
-
-# Display dataframe (optional, for debugging)
-if st.checkbox("Show Dataframe"):
-    st.write(todos_df)
-
-# Close the connection when done (optional but good practice)
-conn.close()
+        priority_color 
