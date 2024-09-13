@@ -62,9 +62,9 @@ if st.button("Add Task"):
 
 # Filter options
 st.sidebar.header("Filters")
-filter_category = st.sidebar.multiselect("Filter by Category", ['Work', 'Personal', 'Shopping', 'Other'])
-filter_priority = st.sidebar.multiselect("Filter by Priority", ['High', 'Medium', 'Low'])
-filter_status = st.sidebar.multiselect("Filter by Status", ['Pending', 'Completed'])
+filter_category = st.sidebar.multiselect("Category", ['Work', 'Personal', 'Shopping', 'Other'])
+filter_priority = st.sidebar.multiselect("Priority", ['High', 'Medium', 'Low'])
+filter_status = st.sidebar.multiselect("Status", ['Pending', 'Completed'])
 
 # Retrieve all todos from the database
 todos = get_todos_from_db()
