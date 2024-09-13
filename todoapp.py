@@ -2,6 +2,11 @@ import streamlit as st
 import pandas as pd
 import sqlite3
 import os
+import logging
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Ensure the database is created in the correct directory
 st.write("Current working directory:", os.getcwd())
@@ -12,6 +17,7 @@ def get_connection():
         conn = sqlite3.connect('todos.db', check_same_thread=False)
         return conn
     except Exception as e:
+        logger.error(f"Failed to connect to the database: {e}")
         st.error(f"Failed to connect to the database: {e}")
         return None
 
@@ -32,7 +38,9 @@ def create_table():
             )
         ''')
         conn.commit()
+        logger.info("Table 'todos' created successfully or already exists.")
     except Exception as e:
+        logger.error(f"Error creating table: {e}")
         st.error(f"Error creating table: {e}")
     finally:
         conn.close()
@@ -50,7 +58,9 @@ def add_todo_to_db(task, category, priority):
         ''', (task, category, priority))
         conn.commit()
         st.success("Task added successfully!")
+        logger.info(f"Task added: {task}")
     except Exception as e:
+        logger.error(f"Error adding task to the database: {e}")
         st.error(f"Error adding task to the database: {e}")
     finally:
         conn.close()
@@ -64,9 +74,20 @@ def get_todos_from_db():
         c = conn.cursor()
         c.execute('SELECT * FROM todos')
         todos = c.fetchall()
+        logger.info(f"Retrieved {len(todos)} tasks from the database.")
         return todos
+    except sqlite3.OperationalError as e:
+        if "no such table" in str(e):
+            logger.error("Table 'todos' does not exist. Attempting to create it.")
+            create_table()
+            return []
+        else:
+            logger.error(f"Error retrieving tasks from the database: {e}")
+            st.error(f"Error retrieving tasks from the database: {e}")
+            return []
     except Exception as e:
-        st.error(f"Error retrieving tasks from the database: {e}")
+        logger.error(f"Unexpected error retrieving tasks from the database: {e}")
+        st.error(f"Unexpected error retrieving tasks from the database: {e}")
         return []
     finally:
         conn.close()
