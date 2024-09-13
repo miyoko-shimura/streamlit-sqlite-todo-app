@@ -20,5 +20,5 @@ To run this application, you need to have Python installed on your system.
 If you haven't already, clone the repository to your local machine.
 
 ```bash
-git clone <your-repository-url>
-cd <your-repository-directory>
+git clone https://to-do-app-miyokoshimura.streamlit.app/
+cd app-todo-list-streamlit
