@@ -89,4 +89,23 @@ for index, todo in todos_df.iterrows():
         st.write(f"🏷️ {todo['Category']}")
     
     with col3:
-        priority_color 
+        priority_color = {'High': '🔴', 'Medium': '🟡', 'Low': '🟢'}
+        # Safely access the priority color
+        priority = todo['Priority']
+        if priority in priority_color:
+            st.write(f"{priority_color[priority]} {priority}")
+        else:
+            st.write(f"Unknown Priority: {priority}")
+    
+    with col4:
+        st.button(f"{'Undo' if todo['Status'] == 'Completed' else 'Complete'}", 
+                  key=f"toggle_{index}", 
+                  on_click=toggle_task_status, 
+                  args=(todo['ID'], todo['Status']))
+    
+    with col5:
+        st.button("Remove", key=f"remove_{index}", on_click=remove_todo_from_db, args=(todo['ID'],))
+
+# Display dataframe (optional, for debugging)
+if st.checkbox("Show Dataframe"):
+    st.write(todos_df)
