@@ -1,15 +1,15 @@
 import streamlit as st
 import pandas as pd
 import sqlite3
+import os
 
 # Ensure the database is created in the correct directory
-import os
 st.write("Current working directory:", os.getcwd())
 
 # Function to create a connection to the SQLite database
 def get_connection():
     try:
-        conn = sqlite3.connect('todos.db')
+        conn = sqlite3.connect('todos.db', check_same_thread=False)
         return conn
     except Exception as e:
         st.error(f"Failed to connect to the database: {e}")
@@ -20,49 +20,59 @@ def create_table():
     conn = get_connection()
     if conn is None:
         return
-    c = conn.cursor()
-    c.execute('''
-        CREATE TABLE IF NOT EXISTS todos (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            task TEXT,
-            category TEXT,
-            priority TEXT,
-            status TEXT
-        )
-    ''')
-    conn.commit()
-    conn.close()
-
-# Call create_table() at the start of the app
-create_table()
+    try:
+        c = conn.cursor()
+        c.execute('''
+            CREATE TABLE IF NOT EXISTS todos (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                task TEXT NOT NULL,
+                category TEXT,
+                priority TEXT,
+                status TEXT
+            )
+        ''')
+        conn.commit()
+    except Exception as e:
+        st.error(f"Error creating table: {e}")
+    finally:
+        conn.close()
 
 # Function to add a new task to SQLite
 def add_todo_to_db(task, category, priority):
     conn = get_connection()
     if conn is None:
         return
-    c = conn.cursor()
-    c.execute('''
-        INSERT INTO todos (task, category, priority, status)
-        VALUES (?, ?, ?, 'Pending')
-    ''', (task, category, priority))
-    conn.commit()
-    conn.close()
+    try:
+        c = conn.cursor()
+        c.execute('''
+            INSERT INTO todos (task, category, priority, status)
+            VALUES (?, ?, ?, 'Pending')
+        ''', (task, category, priority))
+        conn.commit()
+        st.success("Task added successfully!")
+    except Exception as e:
+        st.error(f"Error adding task to the database: {e}")
+    finally:
+        conn.close()
 
 # Function to retrieve all tasks from SQLite
 def get_todos_from_db():
     conn = get_connection()
     if conn is None:
         return []
-    c = conn.cursor()
     try:
+        c = conn.cursor()
         c.execute('SELECT * FROM todos')
         todos = c.fetchall()
-        conn.close()
         return todos
     except Exception as e:
         st.error(f"Error retrieving tasks from the database: {e}")
         return []
+    finally:
+        conn.close()
+
+# Call create_table() at the start of the app
+create_table()
 
 # App title
 st.title("📝 To-Do List Using Streamlit and SQLite")
@@ -79,14 +89,22 @@ with col3:
 if st.button("Add Task"):
     if new_task:
         add_todo_to_db(new_task, category, priority)
+    else:
+        st.warning("Please enter a task before adding.")
 
 # Retrieve all todos from the database
 todos = get_todos_from_db()
 todos_df = pd.DataFrame(todos, columns=['ID', 'Task', 'Category', 'Priority', 'Status'])
 
 # Display todos
-st.write(todos_df)
+if not todos_df.empty:
+    st.write(todos_df)
+else:
+    st.info("No tasks found. Add a task to get started!")
 
 # Debugging: Optional to see table structure and errors
 if st.checkbox("Show Dataframe"):
     st.write(todos_df)
+
+# Add this at the end of your script to see any unhandled exceptions
+st.exception = Exception
