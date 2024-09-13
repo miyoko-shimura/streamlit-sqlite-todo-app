@@ -1,35 +1,46 @@
 import streamlit as st
+import pandas as pd
 
-# Title of the app
-st.title("Simple To-Do App")
+# Initialize session state
+if 'todos' not in st.session_state:
+    st.session_state.todos = pd.DataFrame(columns=['Task', 'Status'])
 
-# Initialize the session state to store tasks
-if 'tasks' not in st.session_state:
-    st.session_state['tasks'] = []
+def add_todo():
+    if st.session_state.new_todo:
+        new_todo = pd.DataFrame({'Task': [st.session_state.new_todo], 'Status': ['Pending']})
+        st.session_state.todos = pd.concat([st.session_state.todos, new_todo], ignore_index=True)
+        st.session_state.new_todo = ""
 
-# Function to add a new task
-def add_task():
-    task = st.text_input("Enter a task", key="new_task")
-    if st.button("Add Task"):
-        if task != "":
-            st.session_state['tasks'].append(task)
-            st.experimental_rerun()  # Refresh the app
+def remove_todo(task):
+    st.session_state.todos = st.session_state.todos[st.session_state.todos.Task != task]
 
-# Function to remove a task
-def remove_task(index):
-    st.session_state['tasks'].pop(index)
-    st.experimental_rerun()  # Refresh the app
+def toggle_status(task):
+    index = st.session_state.todos.index[st.session_state.todos.Task == task].tolist()[0]
+    current_status = st.session_state.todos.at[index, 'Status']
+    new_status = 'Completed' if current_status == 'Pending' else 'Pending'
+    st.session_state.todos.at[index, 'Status'] = new_status
 
-# Adding a new task
-add_task()
+# App title
+st.title("📝 Simple To-Do App")
 
-# Display the task list
-st.write("### Task List")
-if len(st.session_state['tasks']) == 0:
-    st.write("No tasks available")
-else:
-    for i, task in enumerate(st.session_state['tasks']):
-        col1, col2 = st.columns([0.8, 0.2])
-        col1.write(f"{i + 1}. {task}")
-        if col2.button("Remove", key=f"remove_{i}"):
-            remove_task(i)
+# Input for new todo
+st.text_input("Add a new task", key="new_todo", on_change=add_todo)
+
+# Display todos
+for index, todo in st.session_state.todos.iterrows():
+    col1, col2, col3 = st.columns([3, 1, 1])
+    
+    with col1:
+        st.write(f"{'✅' if todo['Status'] == 'Completed' else '⏳'} {todo['Task']}")
+    
+    with col2:
+        st.button(f"{'Undo' if todo['Status'] == 'Completed' else 'Complete'}", 
+                  key=f"toggle_{index}", 
+                  on_click=toggle_status, 
+                  args=(todo['Task'],))
+    
+    with col3:
+        st.button("Remove", key=f"remove_{index}", on_click=remove_todo, args=(todo['Task'],))
+
+# Display dataframe (optional, for debugging)
+st.write(st.session_state.todos)
