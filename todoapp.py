@@ -62,9 +62,9 @@ if st.button("Add Task"):
 
 # Filter options
 st.sidebar.header("Filters")
-filter_category = st.sidebar.multiselect("Category", ['Work', 'Personal', 'Shopping', 'Other'])
-filter_priority = st.sidebar.multiselect("Priority", ['High', 'Medium', 'Low'])
-filter_status = st.sidebar.multiselect("Status", ['Pending', 'Completed'])
+filter_category = st.sidebar.multiselect("Filter by Category", ['Work', 'Personal', 'Shopping', 'Other'])
+filter_priority = st.sidebar.multiselect("Filter by Priority", ['High', 'Medium', 'Low'])
+filter_status = st.sidebar.multiselect("Filter by Status", ['Pending', 'Completed'])
 
 # Retrieve all todos from the database
 todos = get_todos_from_db()
@@ -90,7 +90,6 @@ for index, todo in todos_df.iterrows():
     
     with col3:
         priority_color = {'High': '🔴', 'Medium': '🟡', 'Low': '🟢'}
-        # Safely access the priority color
         priority = todo['Priority']
         if priority in priority_color:
             st.write(f"{priority_color[priority]} {priority}")
@@ -98,7 +97,7 @@ for index, todo in todos_df.iterrows():
             st.write(f"Unknown Priority: {priority}")
     
     with col4:
-        st.button(f"{'Undo' if todo['Status'] == 'Completed' else 'Complete'}", 
+        st.button(f"{'Undo' if todo['Status'] == 'Completed' else 'Done'}",  # Changed "Complete" to "Done"
                   key=f"toggle_{index}", 
                   on_click=toggle_task_status, 
                   args=(todo['ID'], todo['Status']))
