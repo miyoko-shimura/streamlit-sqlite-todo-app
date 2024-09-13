@@ -26,6 +26,8 @@ st.title("📝 Simple To-Do App")
 # Input for new todo
 st.text_input("Add a new task", key="new_todo", on_change=add_todo)
 
+st.title("")
+
 # Display todos
 for index, todo in st.session_state.todos.iterrows():
     col1, col2, col3 = st.columns([3, 1, 1])
