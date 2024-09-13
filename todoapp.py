@@ -1,9 +1,9 @@
 import streamlit as st
 import pandas as pd
 import sqlite3
-import os
 
 # Ensure the database is created in the correct directory
+import os
 st.write("Current working directory:", os.getcwd())
 
 # Function to create a connection to the SQLite database
@@ -33,21 +33,6 @@ def create_table():
     conn.commit()
     conn.close()
 
-# Function to retrieve all tasks from SQLite
-def get_todos_from_db():
-    conn = get_connection()
-    if conn is None:
-        return []
-    c = conn.cursor()
-    try:
-        c.execute('SELECT * FROM todos')
-        todos = c.fetchall()
-        conn.close()
-        return todos
-    except Exception as e:
-        st.error(f"Error retrieving tasks from the database: {e}")
-        return []
-
 # Call create_table() at the start of the app
 create_table()
 
@@ -63,6 +48,21 @@ def add_todo_to_db(task, category, priority):
     ''', (task, category, priority))
     conn.commit()
     conn.close()
+
+# Function to retrieve all tasks from SQLite
+def get_todos_from_db():
+    conn = get_connection()
+    if conn is None:
+        return []
+    c = conn.cursor()
+    try:
+        c.execute('SELECT * FROM todos')
+        todos = c.fetchall()
+        conn.close()
+        return todos
+    except Exception as e:
+        st.error(f"Error retrieving tasks from the database: {e}")
+        return []
 
 # App title
 st.title("📝 To-Do List Using Streamlit and SQLite")
