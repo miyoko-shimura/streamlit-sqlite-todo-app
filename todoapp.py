@@ -30,7 +30,7 @@ def toggle_status(task):
     st.session_state.todos.at[index, 'Status'] = new_status
 
 # App title
-st.title("📝 Category and Priority To-Do List")
+st.title("📝 To-Do List")
 
 # Input for new todo
 col1, col2, col3 = st.columns([3, 1, 1])
