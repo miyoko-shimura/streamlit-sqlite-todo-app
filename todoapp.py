@@ -31,7 +31,7 @@ def toggle_status(task):
 
 # App title
 st.title("📝 To-Do List Using Streamlit")
-st.title("")
+st.write("")
 
 # Input for new todo
 col1, col2, col3 = st.columns([3, 1, 1])
