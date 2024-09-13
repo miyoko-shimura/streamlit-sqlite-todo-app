@@ -2,7 +2,8 @@
 
 This is a simple, interactive To-Do List application built using [Streamlit](https://streamlit.io/) and [SQLite](https://www.sqlite.org/). 
 
-The app allows users to manage tasks, set categories, assign priorities, and track task completion status. The data is stored in an SQLite database, allowing for persistent storage between sessions.
+The app allows users to manage tasks, set categories, assign priorities, and track task completion status.
+The data is stored in an SQLite database, allowing for persistent storage between sessions.
 
 ## Features
 
