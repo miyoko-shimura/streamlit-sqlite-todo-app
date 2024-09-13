@@ -59,7 +59,6 @@ with col3:
 if st.button("Add Task"):
     if new_task:
         add_todo_to_db(new_task, category, priority)
-st.write("")
 
 # Filter options
 st.sidebar.header("Filters")
